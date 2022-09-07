@@ -8,21 +8,18 @@ import { useNavigate } from "react-router-dom";
 const Homepage = () => {
     const navigate = useNavigate();
     const [todo,setTodo] = useState([]);
+    const [iniId, setIniId] = useState(0);
+    const [content, setContent] = useState('');
 
     useEffect(() =>{
         getData();
-        handleDelete();
     },[]);
 
-    const handleDelete=()=> {
-        axios
-          .delete("https://jsonplaceholder.typicode.com/posts/1")
-          .then((response) => console.log(response.data));
-      }
+  
 
 const getData= async()=>{
         
-var config = {
+let config = {
     method: 'get',
     url: 'https://api.todoist.com/rest/v1/tasks',
     headers: { 
@@ -49,17 +46,73 @@ var config = {
         });
       }
 
+      
+
+      const handleDelete = (item) => {
+        let config = {
+          method: "delete",
+          url: `https://api.todoist.com/rest/v1/tasks/${item.id}`,
+          headers: {
+            Authorization: "Bearer 3d1d8b400ac7b81b81fc3369403005779dca728a",
+            Cookie: "csrf=c66f6c62c9a34cf8a5008fda8a6fcf55",
+          },
+        };
+        axios(config)
+          .then(function (response) {
+            getData();
+            console.log(JSON.stringify(response.data));
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      };
+
+      const changeId=(item)=>{
+        setIniId(item);
+      }
+
+const updateData=(iniId)=>{
+  var axios = require('axios');
+var data = JSON.stringify({
+  "content": "Buy Coffee"
+});
+
+var config = {
+  method: 'post',
+  url: 'https://api.todoist.com/rest/v1/tasks/'+{iniId},
+  headers: { 
+    'Authorization': 'Bearer 3d1d8b400ac7b81b81fc3369403005779dca728a', 
+    'Content-Type': 'application/json', 
+    'Cookie': 'csrf=c66f6c62c9a34cf8a5008fda8a6fcf55'
+  },
+  data : data
+};
+
+axios(config)
+.then(function (response) {
+  console.log(JSON.stringify(response.data));
+})
+.catch(function (error) {
+  console.log(error);
+});
+
+}
+
   return (
     <>
     <NavBar/>
-    {todo.map((item, index) => {
+    <form onSubmit={()=>updateData(iniId)}>
+      <input className='bg-blue-500 rounded-full text-white my-4'type="text" placeholder={iniId}/>
+      <button type="submit" onClick={()=>updateData(iniId)}>posting</button>
+    </form>
+    {todo?todo.map((item, index) => {
             return (
               <div key={index}>
-                <p>{item.id}</p>
-              <Card id={item.id} content={item.content} detail={()=>handleDetailPage(item)} delete={()=>handleDelete()} />
+              <Card id={item.id} content={item.content} detail={()=>handleDetailPage(item)} handleDelete={()=>handleDelete(item)} />
+              <button onClick={()=>changeId(item.id)}>dapatkan id</button>
               </div>
             );
-          })}
+          }):<></>}
     </>
   )
 }
