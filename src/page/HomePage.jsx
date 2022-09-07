@@ -71,15 +71,18 @@ let config = {
         setIniId(item);
       }
 
-const updateData=(iniId)=>{
+const posting=()=>{
   var axios = require('axios');
 var data = JSON.stringify({
-  "content": "Buy Coffee"
+  "content": content,
+  "due_string": "tomorrow at 12:00",
+  "due_lang": "en",
+  "priority": 4
 });
 
 var config = {
   method: 'post',
-  url: 'https://api.todoist.com/rest/v1/tasks/'+{iniId},
+  url: 'https://api.todoist.com/rest/v1/tasks',
   headers: { 
     'Authorization': 'Bearer 3d1d8b400ac7b81b81fc3369403005779dca728a', 
     'Content-Type': 'application/json', 
@@ -91,20 +94,26 @@ var config = {
 axios(config)
 .then(function (response) {
   console.log(JSON.stringify(response.data));
+  getData();
 })
 .catch(function (error) {
   console.log(error);
 });
 
+};
+
+const changeData =(event)=>{
+  setContent(event.target.value);
+  getData();
 }
 
   return (
     <>
     <NavBar/>
-    <form onSubmit={()=>updateData(iniId)}>
-      <input className='bg-blue-500 rounded-full text-white my-4'type="text" placeholder={iniId}/>
-      <button type="submit" onClick={()=>updateData(iniId)}>posting</button>
+    <form>
+    <input type="text" className='bg-slate-500 rounded-full text-white' onChange={changeData}/>
     </form>
+      <button onClick={()=>posting()}>posting</button>
     {todo?todo.map((item, index) => {
             return (
               <div key={index}>
